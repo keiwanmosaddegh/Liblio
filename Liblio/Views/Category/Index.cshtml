@@ -1,0 +1,68 @@
+﻿@model IEnumerable<Liblio.Models.Category>
+@{
+    ViewBag.Title = "Categories";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Categories</h2>
+<p>
+    @Html.ActionLink("Create New Category", "New", "Category", null, new { @class = "btn btn-primary" })
+</p>
+<table id="categories" class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>Category</th>
+            <th>Delete</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+            var table = $("#categories").DataTable({
+                ajax: {
+                    url: "/api/categories",
+                    dataSrc: ""
+                },
+                columns: [
+                    {
+                        data: "categoryName",
+                        render: function (data, type, category) {
+                            return "<a href='/category/edit/" + category.id + "'>" + category.categoryName + "</a>";
+                        }
+                    },
+                    {
+                        data: "id",
+                        render: function (data) {
+                            return "<button class='btn-link js-delete' data-category-id=" + data + ">Delete</button>";
+                        }
+                    }
+                ]
+            });
+
+            $('#categories').on("click", ".js-delete", function () {
+                var button = $(this);
+
+                bootbox.confirm("Are you sure you want to delete this category?", function (result) {
+                    if (result) {
+                        $.ajax({
+                            url: "/api/categories/" + button.attr("data-category-id"),
+                            method: "DELETE",
+                            success: function () {
+                                table.row(button.parents("tr")).remove().draw();
+                                toastr.success("Category successfully deleted.");
+                            },
+                            error: function () {
+                                toastr.error("Category in use. Can't be deleted.");
+                            }
+                        });
+                    }
+                });
+            })
+        });
+    </script>
+}

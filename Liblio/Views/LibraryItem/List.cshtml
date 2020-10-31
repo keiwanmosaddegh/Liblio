@@ -1,0 +1,135 @@
+﻿@model List<Liblio.Models.LibraryItem>
+@{
+    ViewBag.Title = "LibraryItems";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Library Items</h2>
+<p>
+    @Html.ActionLink("New Library Item", "New", "LibraryItem", null, new { @class = "btn btn-primary" })
+</p>
+<table id="libraryItems" class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Pages</th>
+            <th>Runtime (minutes)</th>
+            <th>Type</th>
+            <th>Category</th>
+            <th>Borrower</th>
+            <th>Borrow Date</th>
+            <th>Check In/Out</th>
+            <th>Delete</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+@section scripts
+{
+    <script>
+        function acr(s) {
+            var words, acronym, nextWord;
+
+            words = s.split(' ');
+            acronym = "";
+            index = 0
+            while (index < words.length) {
+                nextWord = words[index];
+                acronym = acronym + nextWord.charAt(0);
+                index = index + 1;
+            }
+            return acronym
+        }
+
+        $(document).ready(function () {
+            var table = $("#libraryItems").DataTable({
+                "order": [[5, "asc"]],
+                ajax: {
+                    url: "/api/libraryItems",
+                    dataSrc: ""
+                },
+                columns: [
+                    {
+                        data: "title",
+                        render: function (data, type, libraryItem) {
+                            var acronym = acr(libraryItem.title);
+                            return "<a href='/libraryItem/edit/" + libraryItem.id + "'>" + libraryItem.title + " (" + acronym + ")</a>";
+                        },
+                        "sortable": false
+                    },
+                    {
+                        data: "author",
+                        "sortable": false
+                    },
+                    {
+                        data: "pages",
+                        "sortable": false
+                    },
+                    {
+                        data: "runTimeMinutes",
+                        "sortable": false
+                    },
+                    {
+                        data: "type",
+                    },
+                    {
+                        data: "category.categoryName",
+                    },
+                    {
+                        data: "borrower",
+                        "sortable": false
+                    },
+                    {
+                        data: "borrowDate",
+                        render: function (data) {
+                            if (data) {
+                                return new Date(data).toDateString();
+                            }
+                            return data;
+                        },
+                        "sortable": false
+                    },
+                    {
+                        data: "id",
+                        render: function (data, type, libraryItem) {
+                            if (libraryItem.isBorrowable) {
+                                if (libraryItem.borrower) {
+                                    return "<a href='/checkout/checkin/" + libraryItem.id + "'>Check In</a>";
+                                }
+                                return "<a href='/checkout/new/" + libraryItem.id + "'>Check Out</a>";
+                            }
+
+                            return null;
+                        },
+                        "sortable": false
+                    },
+                    {
+                        data: "id",
+                        render: function(data) {
+                            return "<button class='btn-link js-delete' data-libraryItem-id=" + data + ">Delete</button>";
+                        },
+                        "sortable": false
+                    }
+                ]
+            });
+            $("#libraryItems").on("click", ".js-delete", function () {
+                var button = $(this);
+                bootbox.confirm("Are you sure you want to delete this libraryItem?", function (result) {
+                    if (result) {
+                        $.ajax({
+                            url: "/api/libraryItems/" + button.attr("data-libraryItem-id"),
+                            method: "DELETE",
+                            success: function () {
+                                table.row(button.parents("tr")).remove().draw();
+                                toastr.success("Library Item successfully deleted.");
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+}

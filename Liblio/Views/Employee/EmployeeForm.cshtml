@@ -1,0 +1,90 @@
+﻿@model Liblio.ViewModels.EmployeeFormViewModel
+@{
+    ViewBag.Title = "New";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>New Employee</h2>
+
+@using (Html.BeginForm("Save", "Employee"))
+{
+    @Html.ValidationSummary(true, "Please fix the following errors.")
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.Employee.FirstName)
+        @Html.TextBoxFor(m => m.Employee.FirstName, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Employee.FirstName)
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.Employee.LastName)
+        @Html.TextBoxFor(m => m.Employee.LastName, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Employee.LastName)
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.Rank)
+        @Html.TextBoxFor(m => m.Rank, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Rank)
+    </div>
+    <div class="checkbox">
+        <label>
+            @Html.CheckBoxFor(m => m.Employee.IsCEO, new { @id = "isCEO" }) Is CEO?
+            @Html.ValidationMessageFor(m => m.Employee.IsCEO)
+        </label>
+    </div>
+    <div class="checkbox">
+        <label>
+            @Html.CheckBoxFor(m => m.Employee.IsManager, new { @id = "isManager" }) Is Manager?
+        </label>
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.Employee.ManagerId)
+        @Html.DropDownListFor(m => m.Employee.ManagerId, new SelectList(Model.Managers, "Id", "FirstName"), "Select Manager", new { @id = "selectManager", @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Employee.ManagerId)
+    </div>
+
+    @Html.HiddenFor(m => m.Employee.Id)
+    @Html.AntiForgeryToken()
+    <button type="submit" class="btn btn-primary">Save</button>
+}
+
+@section scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+<script>
+        $("#isCEO").change(function () {
+            if ($(this).is(':checked')) {
+                $('#isManager').prop("disabled", true);
+                $('#selectManager').prop("disabled", true);
+            } else {
+                $('#isManager').prop("disabled", false);
+                $('#selectManager').prop("disabled", false);
+            }
+        });
+        $("#isCEO").trigger("change");
+
+    $("#isManager").change(function () {
+        var ceo = @Html.Raw(Json.Encode(Model.CEO));
+
+            if ($(this).is(':checked')) {
+                $('#selectManager').removeAttr('required');
+                $('#selectManager').removeAttr('data-error');
+                if (ceo) {
+                    $(document.createElement('option'))
+                    .attr('value', ceo.Id)
+                    .text(ceo.FirstName)
+                    .appendTo("#selectManager");
+                }
+            } else {
+                $('#selectManager').attr('required', '');
+                $('#selectManager').attr('data-error', 'This field is required.');
+                if (ceo) {
+                    $("#selectManager option[value=" + ceo.Id + "]").remove();
+                }
+            }
+        });
+        $("#isManager").trigger("change");
+</script>
+}
+
+
+

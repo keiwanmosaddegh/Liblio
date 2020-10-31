@@ -1,0 +1,108 @@
+﻿@model Liblio.ViewModels.LibraryItemFormViewModel
+@{
+    ViewBag.Title = "LibraryItemForm";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>New Library Item</h2>
+
+@using (Html.BeginForm("Save", "LibraryItem"))
+{
+    @Html.ValidationSummary(true, "Please fix the following errors.")
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.LibraryItem.Type)
+        @Html.DropDownListFor(m => m.LibraryItem.Type, new SelectList(new string[] { "Book", "DVD", "Audio Book", "Reference Book" }), "", new { @class = "form-control", @id = "typePicker" })
+        @Html.ValidationMessageFor(m => m.LibraryItem.Type)
+    </div>
+
+    <div id="commonFields" class="form-group">
+        <div class="form-group">
+            @Html.LabelFor(m => m.LibraryItem.Title)
+            @Html.TextBoxFor(m => m.LibraryItem.Title, new { @class = "form-control", @id = "title" })
+            @Html.ValidationMessageFor(m => m.LibraryItem.Title)
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.LibraryItem.CategoryId)
+            @Html.DropDownListFor(m => m.LibraryItem.CategoryId, new SelectList(Model.Categories, "Id", "CategoryName"), "", new { @class = "form-control", @id = "categoryid" })
+            @Html.ValidationMessageFor(m => m.LibraryItem.CategoryId)
+        </div>
+    </div>
+
+    <div id="bookFields" class="form-group">
+        <div class="form-group">
+            @Html.LabelFor(m => m.LibraryItem.Author)
+            @Html.TextBoxFor(m => m.LibraryItem.Author, new { @class = "form-control", @id = "author" })
+            @Html.ValidationMessageFor(m => m.LibraryItem.Author)
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.LibraryItem.Pages)
+            @Html.TextBoxFor(m => m.LibraryItem.Pages, new { @class = "form-control", @id = "pages" })
+            @Html.ValidationMessageFor(m => m.LibraryItem.Pages)
+        </div>
+    </div>
+
+    <div id="dvdAudioFields" class="form-group">
+        <div class="form-group">
+            @Html.LabelFor(m => m.LibraryItem.RunTimeMinutes)
+            @Html.TextBoxFor(m => m.LibraryItem.RunTimeMinutes, new { @class = "form-control", @id = "runtimeMinutes" })
+            @Html.ValidationMessageFor(m => m.LibraryItem.RunTimeMinutes)
+        </div>
+    </div>
+
+    @Html.HiddenFor(li => li.LibraryItem.Id)
+    @Html.HiddenFor(li => li.LibraryItem.Borrower)
+    @Html.HiddenFor(li => li.LibraryItem.BorrowDate)
+    @Html.AntiForgeryToken()
+    <button type="submit" class="btn btn-primary">Save</button>
+}
+
+@section scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script>
+        $("#typePicker").change(function () {
+            if ($(this).val() == "Book" || $(this).val() == "Reference Book" || $(this).val() == "DVD" || $(this).val() == "Audio Book") {
+                $('#commonFields').show();
+                $('#title').attr('required', '');
+                $('#title').attr('data-error', 'This field is required.');
+                $('#categoryid').attr('required', '');
+                $('#categoryid').attr('data-error', 'This field is required.');
+            } else {
+                $('#commonFields').hide();
+                $('#title').removeAttr('required');
+                $('#title').removeAttr('data-error');
+                $('#categoryid').removeAttr('required');
+                $('#categoryid').removeAttr('data-error');
+            }
+
+            if ($(this).val() == "Book" || $(this).val() == "Reference Book") {
+                $('#bookFields').show();
+                $('#author').attr('required', '');
+                $('#author').attr('data-error', 'This field is required.');
+                $('#pages').attr('required', '');
+                $('#pages').attr('data-error', 'This field is required.');
+            } else {
+                $('#bookFields').hide();
+                $('#author').removeAttr('required');
+                $('#author').removeAttr('data-error');
+                $('#pages').removeAttr('required');
+                $('#pages').removeAttr('data-error');
+            }
+
+            if ($(this).val() == "Audio Book" || $(this).val() == "DVD") {
+                $('#dvdAudioFields').show();
+                $('#runtimeMinutes').attr('required', '');
+                $('#runtimeMinutes').attr('data-error', 'This field is required.');
+            } else {
+                $('#dvdAudioFields').hide();
+                $('#runtimeMinutes').removeAttr('required');
+                $('#runtimeMinutes').removeAttr('data-error');
+            }
+        });
+        $("#typePicker").trigger("change");
+    </script>
+}
+
