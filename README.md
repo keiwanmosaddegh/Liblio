@@ -16,3 +16,15 @@ Glad you asked.
 - Structure Employee Hierarchy (assign managers to employees, etc.)
 - Calculate Salaries based on Employee Rank
 - Enjoy an overview of the system's Categories, Library Items, and Employees
+
+## Pics or it didn't hap...
+Here you go.
+![login](https://i.ibb.co/NsjcF0S/1.png)
+
+![categories](https://i.ibb.co/vXksyn1/2.png)
+
+![library items](https://i.ibb.co/QbWPCxW/3.png)
+
+![check out library item](https://i.ibb.co/XLmhv1K/4.png)
+
+![employee management](https://i.ibb.co/j4gfLLr/5.png)
